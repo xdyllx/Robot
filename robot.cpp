@@ -198,22 +198,22 @@ void Robot::RobotRotate(double angle)
 
 void Robot::Move(int distance)
 {
-//    robot.move(distance);
-//    while(!robot.isMoveDone() && t->ins != "stop")
-//    {
-//        sleep(1);
-//        cout << "is moving" <<endl;
-//    }
-    int vel = 120;
-    robot.setVel(vel);
-    int seconds = distance / vel;
-    int tmp = 0;
-    while(tmp < seconds)
+    robot.move(distance);
+    while(!robot.isMoveDone() && t->ins != "stop")
     {
         sleep(1);
-        ++tmp;
+        cout << "is moving" <<endl;
     }
-    robot.setVel(0);
+//    int vel = 120;
+//    robot.setVel(vel);
+//    int seconds = distance / vel;
+//    int tmp = 0;
+//    while(tmp < seconds)
+//    {
+//        sleep(1);
+//        ++tmp;
+//    }
+//    robot.setVel(0);
 }
 
 void Robot::Reset()
@@ -258,18 +258,19 @@ void Robot::AvoidSide()
             break;
         case 2:
             Move(smalldistance);
-            RobotRotate(-smallangle);
-            sleep(0.5);
+            //RobotRotate(-smallangle);
+            //sleep(0.5);
             //bool tmp = k->getOnePicture();
             pictureres = k->getOnePicture();
+            cout << "picture res=" <<pictureres <<endl;
             if(pictureres == 0)
                 status = 3;
             else if(pictureres == -1)
                 return;
-            RobotRotate(smallangle);
+            //RobotRotate(smallangle);
             break;
         case 3:
-            Move(600);
+            Move(800);
             RobotRotate(-tmpangle);
             sleep(0.5);
             //bool tmp1 = k->getOnePicture();

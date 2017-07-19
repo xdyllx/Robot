@@ -81,11 +81,13 @@ void Knect::init()
 int Knect::getOnePicture()
 {
     libfreenect2::FrameMap frames;
+    cout << "before wait"<<endl;
     if(!listener->waitForNewFrame(frames,1000))
     {
         std::cout << "*** CameraFreenect2: Failed to get frames!" << std::endl;
         return -1;
     }
+    cout << "after wait" <<endl;
     libfreenect2::Frame *depth = frames[libfreenect2::Frame::Depth];
 
     cv::Mat(depth->height, depth->width, CV_32FC1, depth->data).copyTo(depthmat);
@@ -98,8 +100,8 @@ int Knect::getOnePicture()
     for (int i=0; i<424; i++)
         for (int j=0; j<512; j++)
             dep[i][j] = dep_[i*512+j];
-    cout << "dep=" <<dep[0][0] <<endl;
-    cv::imwrite("output.jpg", depthmat);
+    //cout << "dep=" <<dep[0][0] <<endl;
+    //cv::imwrite("output.jpg", depthmat);
 
     int black_count = 0;
     for(int i=280;i<424;i++)
