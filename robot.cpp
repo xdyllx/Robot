@@ -2,7 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <sstream>
-
+#include <stdio.h>
 using namespace std;
 
 double getRand() //get random number in [-1,1]
@@ -173,6 +173,11 @@ void Robot::run()
                 cout << "error, inst= " << inst <<" rg_ins="<<t->rg_message<< endl;
             }
             inst = "";
+        }
+        if(k->robot_status == 1)
+        {
+            k->isWorking = false;
+            AvoidSide();
         }
         sleep(0.5);
 

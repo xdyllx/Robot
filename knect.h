@@ -27,6 +27,8 @@ private:
     int flag[256];
     bool protonect_shutdown = false;
     float dep[424][512];
+    float init[424][512];
+
     libfreenect2::Freenect2 freenect2;
     libfreenect2::Freenect2Device *dev = NULL;
     libfreenect2::PacketPipeline  *pipeline = NULL;
@@ -37,16 +39,17 @@ private:
             libfreenect2::Frame::Depth |
             libfreenect2::Frame::Ir);*/
 
+    pthread_t thr;
+
 public:
     Knect();
-    void init();
+    void Init();
     int getOnePicture();
     void ObserveObstacle();
-private:
-//    void sigint_handler(int s)
-//    {
-//        protonect_shutdown = true;
-//    }
+    bool isObst(int i, int j);
+public:
+    int robot_status; //1-have obstacle 0-no obstacle
+    bool isWorking;
 
 };
 

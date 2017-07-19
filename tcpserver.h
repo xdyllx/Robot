@@ -6,7 +6,7 @@
 #include <arpa/inet.h>
 #include <iostream>
 #include <pthread.h>
-#include <unistd.h>
+
 class TcpServer
 {
 public:

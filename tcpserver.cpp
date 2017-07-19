@@ -1,5 +1,6 @@
 #include "tcpserver.h"
-
+#include <stdio.h>
+#include <unistd.h>
 TcpServer::TcpServer(int listen_port)
 {
     thread_count = 0;
