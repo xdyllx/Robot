@@ -241,6 +241,7 @@ void Robot::AvoidSide()
     bool tmp = 1;
     int smalldistance = 150;
     double tmpangle = 40;
+    double smallangle = 20;
     int pictureres;
     while(tmp && inst != "stop")
     {
@@ -257,7 +258,7 @@ void Robot::AvoidSide()
             break;
         case 2:
             Move(smalldistance);
-            RobotRotate(-tmpangle);
+            RobotRotate(-smallangle);
             sleep(0.5);
             //bool tmp = k->getOnePicture();
             pictureres = k->getOnePicture();
@@ -265,7 +266,7 @@ void Robot::AvoidSide()
                 status = 3;
             else if(pictureres == -1)
                 return;
-            RobotRotate(tmpangle);
+            RobotRotate(smallangle);
             break;
         case 3:
             Move(600);

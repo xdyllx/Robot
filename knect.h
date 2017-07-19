@@ -8,11 +8,12 @@
 #include <libfreenect2/registration.h>
 #include <libfreenect2/packet_pipeline.h>
 #include <libfreenect2/logger.h>
+#include <pthread.h>
 
-//using namespace cv;
+
 class Knect
 {
-public:
+private:
     enum
     {
         Processor_cl,
@@ -40,12 +41,15 @@ public:
     Knect();
     void init();
     int getOnePicture();
+    void ObserveObstacle();
 private:
-    void sigint_handler(int s)
-    {
-        protonect_shutdown = true;
-    }
+//    void sigint_handler(int s)
+//    {
+//        protonect_shutdown = true;
+//    }
 
 };
+
+void* thread_run(void*);
 
 #endif // KNECT_H

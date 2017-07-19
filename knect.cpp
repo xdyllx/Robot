@@ -1,5 +1,4 @@
 #include "knect.h"
-#include <signal.h>
 
 using namespace std;
 using namespace cv;
@@ -87,12 +86,8 @@ int Knect::getOnePicture()
         std::cout << "*** CameraFreenect2: Failed to get frames!" << std::endl;
         return -1;
     }
-    //libfreenect2::Frame *rgb = frames[libfreenect2::Frame::Color];
-    //libfreenect2::Frame *ir = frames[libfreenect2::Frame::Ir];
     libfreenect2::Frame *depth = frames[libfreenect2::Frame::Depth];
 
-    //cv::Mat(rgb->height, rgb->width, CV_8UC4, rgb->data).copyTo(rgbmat);
-    //cv::Mat(ir->height, ir->width, CV_32FC1, ir->data).copyTo(irmat);
     cv::Mat(depth->height, depth->width, CV_32FC1, depth->data).copyTo(depthmat);
 
 
@@ -123,4 +118,9 @@ int Knect::getOnePicture()
     }
     else
         return 0;
+}
+
+void Knect::ObserveObstacle()
+{
+
 }
