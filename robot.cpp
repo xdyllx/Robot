@@ -79,7 +79,7 @@ void Robot::init()
     //robot.setAbsoluteMaxRotVel(15);
     robot.setRotVelMax(RotateVelMax);
 
-    //k = new Knect();
+    k = new Knect();
 
 }
 
@@ -91,7 +91,8 @@ void Robot::run()
 #define rgflag t->rgflag
     while(1)
     {
-        if(t->flag == 1){
+        if(t->flag == 1)
+        {
             cout << "in flag" <<endl;
             //double rotate_temp = 90 + getRand();
             t->flag = 0;
@@ -197,12 +198,22 @@ void Robot::RobotRotate(double angle)
 
 void Robot::Move(int distance)
 {
-    robot.move(distance);
-    while(!robot.isMoveDone() && t->ins != "stop")
+//    robot.move(distance);
+//    while(!robot.isMoveDone() && t->ins != "stop")
+//    {
+//        sleep(1);
+//        cout << "is moving" <<endl;
+//    }
+    int vel = 120;
+    robot.setVel(vel);
+    int seconds = distance / vel;
+    int tmp = 0;
+    while(tmp < seconds)
     {
         sleep(1);
-        cout << "is moving" <<endl;
+        ++tmp;
     }
+    robot.setVel(0);
 }
 
 void Robot::Reset()
@@ -228,7 +239,7 @@ void Robot::AvoidSide()
     //3:move 1000 right 30 observe if have left 30 status = 2 if not status = 4
     //4:move 1000 left 30
     bool tmp = 1;
-    int smalldistance = 100;
+    int smalldistance = 150;
     double tmpangle = 40;
     int pictureres;
     while(tmp && inst != "stop")
@@ -240,7 +251,7 @@ void Robot::AvoidSide()
             break;
         case 1:
             RobotRotate(tmpangle);
-            Move(900);
+            Move(700);
             RobotRotate(-tmpangle);
             status = 2;
             break;
@@ -274,7 +285,7 @@ void Robot::AvoidSide()
                 return;
             break;
         case 4:
-            Move(900);
+            Move(700);
             RobotRotate(tmpangle);
             status = 0;
             break;
