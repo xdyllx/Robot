@@ -177,6 +177,7 @@ void Robot::run()
         if(k->robot_status == 1)
         {
             k->isWorking = false;
+            status = 1;
             AvoidSide();
         }
         sleep(0.5);
@@ -243,21 +244,22 @@ void Robot::AvoidSide()
     //2: move 1000,right 30 observe if have status = 2 if not status = 3  left 30
     //3:move 1000 right 30 observe if have left 30 status = 2 if not status = 4
     //4:move 1000 left 30
-    bool tmp = 1;
-    int smalldistance = 150;
-    double tmpangle = 40;
+    bool working = 1;
+    int smalldistance = 160;
+    double tmpangle = 35;
     double smallangle = 20;
     int pictureres;
-    while(tmp && inst != "stop")
+    while(working && inst != "stop")
     {
         switch(status)
         {
         case 0:
-            tmp = 0;
+            working = 0;
+            Reset();
             break;
         case 1:
             RobotRotate(tmpangle);
-            Move(700);
+            Move(650);
             RobotRotate(-tmpangle);
             status = 2;
             break;
@@ -275,7 +277,7 @@ void Robot::AvoidSide()
             //RobotRotate(smallangle);
             break;
         case 3:
-            Move(800);
+            Move(700);
             RobotRotate(-tmpangle);
             sleep(0.5);
             //bool tmp1 = k->getOnePicture();
@@ -292,7 +294,7 @@ void Robot::AvoidSide()
                 return;
             break;
         case 4:
-            Move(700);
+            Move(650);
             RobotRotate(tmpangle);
             status = 0;
             break;

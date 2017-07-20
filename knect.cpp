@@ -2,6 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 using namespace std;
 using namespace cv;
 
@@ -117,16 +118,16 @@ int Knect::getOnePicture()
     //cv::imwrite("output.jpg", depthmat);
 
     int black_count = 0;
-    for(int i=280;i<424;i++)
+    for(int i=300;i<424;i++)
     {
-        for(int j=0;j<40;j++)
+        for(int j=0;j<25;j++)
         {
             if(dep[i][j] == 0)
                 ++black_count;
         }
     }
     listener->release(frames);
-    if(black_count > 25*140)
+    if(black_count > 25*115)
     {
         cout << "right obstacle" <<endl;
         return 1;
@@ -202,7 +203,7 @@ void Knect::ObserveObstacle()
 //            send_buf[10] = (sendF/10) + '0';
 //            send_buf[11] = (sendF%10) + '0';
 //            send_buf[12] = '\0';
-//            printf("%d\n", sendF);
+            printf("sendF =%d\n", sendF);
 //            printf("%s\n", send_buf);
             printf("Obstacle, Stop\n");
             //send(sockfd, send_buf, strlen(send_buf), 0);   // 向服务器发送信息
@@ -215,6 +216,7 @@ void Knect::ObserveObstacle()
         protonect_shutdown = protonect_shutdown || (key > 0 && ((key & 0xFF) == 27)); // shutdown on escape
 
         listener->release(frames);
+        sleep(1);
     }
 }
 
