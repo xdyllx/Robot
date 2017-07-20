@@ -23,14 +23,14 @@ private:
 
 
 
-    cv::Mat rgbmat, depthmat, irmat, graymat, hsv;
+    cv::Mat rgbmat, depthmat, irmat, graymat, hsv, depthmat2;
 
 
 
     std::vector<cv::Vec3f> circles;
     int flag[256];
     bool protonect_shutdown = false;
-    float dep[424][512];
+    float depobstacle[424][512];
     float init[424][512];
 
     libfreenect2::Freenect2 freenect2;

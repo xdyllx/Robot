@@ -92,11 +92,13 @@ void Robot::run()
 //#define rgflag t->rgflag
     while(1)
     {
+
         if(k->rg_message.substr(0,4) == "turn")
         {
             rgflag = true;
             if(k->rg_message == "turnrrr")
             {
+                t->flag = 1;
                 inst = "stop";
             }
             for(int i=0;i<3;i++)

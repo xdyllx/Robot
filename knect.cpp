@@ -113,7 +113,7 @@ int Knect::getOnePicture()
 
     for (int i=0; i<424; i++)
         for (int j=0; j<512; j++)
-            dep[i][j] = dep_[i*512+j];
+            depobstacle[i][j] = dep_[i*512+j];
     //cout << "dep=" <<dep[0][0] <<endl;
     //cv::imwrite("output.jpg", depthmat);
 
@@ -122,7 +122,7 @@ int Knect::getOnePicture()
     {
         for(int j=0;j<25;j++)
         {
-            if(dep[i][j] == 0)
+            if(depobstacle[i][j] == 0)
                 ++black_count;
         }
     }
@@ -148,6 +148,7 @@ double sqr(double x)
 
 void Knect::ObserveObstacle()
 {
+    cv::namedWindow("rgb", WND_PROP_ASPECT_RATIO);
     libfreenect2::Registration* registration = new libfreenect2::Registration(dev->getIrCameraParams(), dev->getColorCameraParams());
     libfreenect2::Frame undistorted(512, 424, 4), registered(512, 424, 4), depth2rgb(1920, 1080 + 2, 4);
     int k = 25;	//调整参数以得到圆
@@ -156,7 +157,7 @@ void Knect::ObserveObstacle()
     libfreenect2::FrameMap frames;
     while(!protonect_shutdown)
     {
-
+        //cout << "before wait" <<endl;
         listener->waitForNewFrame(frames);
         libfreenect2::Frame *rgb = frames[libfreenect2::Frame::Color];
         //libfreenect2::Frame *ir = frames[libfreenect2::Frame::Ir];
@@ -166,11 +167,12 @@ void Knect::ObserveObstacle()
 
         cv::Mat(rgb->height, rgb->width, CV_8UC4, rgb->data).copyTo(rgbmat);
         //cv::Mat(ir->height, ir->width, CV_32FC1, ir->data).copyTo(irmat);
-        cv::Mat(depth->height, depth->width, CV_32FC1, depth->data).copyTo(depthmat);
+        cv::Mat(depth->height, depth->width, CV_32FC1, depth->data).copyTo(depthmat2);
+        cv::Mat(depth2rgb.height, depth2rgb.width, CV_32FC1, depth2rgb.data).copyTo(depthmat);
 
 
         //cv::imwrite("output1.jpg",depthmat);
-        cv::imshow("rgb", depthmat);
+        //cv::imshow("rgb", depthmat);
         float *dep_ = (float*)depthmat.data;		//将深度图信息放到dep数组中
         cv::cvtColor(rgbmat, hsv, CV_BGR2HSV);	//bgr图转hsv图
         CvScalar now;
@@ -348,15 +350,18 @@ void Knect::ObserveObstacle()
                 }
             }
         }
+        float *dep2_ = (float*)depthmat2.data;		//将深度图信息放到dep数组中
 
+        cv::imshow("rgb", rgbmat);
         if(!isWorking)
         {
             //sleep(1);
+            listener->release(frames);
             continue;
         }
         for (int i=0; i<424; i++)
             for (int j=0; j<512; j++)
-                dep[i][j] = dep_[i*512+j];
+                depobstacle[i][j] = dep2_[i*512+j];
         FILE *fin = fopen("init.txt","r");
         for (int i=0; i<424; i++)
             for (int j=0; j<512; j++)
@@ -367,7 +372,7 @@ void Knect::ObserveObstacle()
         for (int i=0; i<414; i++)
             for (int j=0; j<512; j++)
             {
-                if (dep[i][j] < 1e-8) dep[i][j] = 500.0;
+                if (depobstacle[i][j] < 1e-8) depobstacle[i][j] = 500.0;
                 if (init[i][j] < 1e-8) init[i][j] = 500.0;
             }
 
@@ -384,7 +389,7 @@ void Knect::ObserveObstacle()
                     if (j < minj) minj = j;
                     if (j > maxj) maxj = j;
                     mindep++;
-                    dep_[i*512+j] = 0;
+                    dep2_[i*512+j] = 0;
                 }
             }
 
@@ -554,7 +559,7 @@ double Knect::Dist(float *dep, double xx, double yy, double rr)
 bool Knect::isObst(int i, int j)
 {
     if (i < 0 || j < 0 || i >= 424 || j >= 512) return 0;
-    return init[i][j] - dep[i][j] > 20 && dep[i][j] < 600;
+    return init[i][j] - depobstacle[i][j] > 20 && depobstacle[i][j] < 600;
 }
 
 void *thread_run(void *args)
