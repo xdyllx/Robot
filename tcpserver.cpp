@@ -6,7 +6,7 @@ TcpServer::TcpServer(int listen_port)
     thread_count = 0;
     whichisrg = -1;
     flag = 0;
-    memset(rg, 0, sizeof(rg));
+
 
     if(( socket_fd = socket(PF_INET,SOCK_STREAM,IPPROTO_TCP)) < 0 ){
             throw "socket() failed";
@@ -80,36 +80,36 @@ void TcpServer::recv_msg(int num)
         }
         else if(len>0)
         {
-            if(memcmp(buffer,"00turnggg",9) == 0)
-            {
-                std::cout << "rgnum=" <<std::endl;
-                whichisrg = num;
-            }
-            if(num == whichisrg)
-            {
-                rg_message = "";
-                for(int i=2;i<len;i++)
-                    rg_message += buffer[i];
-                std::cout << "receive rg_message:"<<rg_message << std::endl;
-                if(rg_message == "turnrrr")
-                {
-                    flag = 1;
-                    ins = "stop";
-                }
-                rgflag = true;
-                for(int i=0;i<3;i++)
-                {
-                    if(rg_message[i+4] == 'r')
-                        rg[i] = true;
-                    else if(rg_message[i+4] == 'g')
-                        rg[i] = false;
-                    else
-                    {
-                        std::cout << "shit error,reveive "<<rg_message << std::endl;
-                    }
-                }
-            }
-            else
+//            if(memcmp(buffer,"00turnggg",9) == 0)
+//            {
+//                std::cout << "rgnum=" <<std::endl;
+//                whichisrg = num;
+//            }
+//            if(num == whichisrg)
+//            {
+//                rg_message = "";
+//                for(int i=2;i<len;i++)
+//                    rg_message += buffer[i];
+//                std::cout << "receive rg_message:"<<rg_message << std::endl;
+//                if(rg_message == "turnrrr")
+//                {
+//                    flag = 1;
+//                    ins = "stop";
+//                }
+//                rgflag = true;
+//                for(int i=0;i<3;i++)
+//                {
+//                    if(rg_message[i+4] == 'r')
+//                        rg[i] = true;
+//                    else if(rg_message[i+4] == 'g')
+//                        rg[i] = false;
+//                    else
+//                    {
+//                        std::cout << "shit error,reveive "<<rg_message << std::endl;
+//                    }
+//                }
+//            }
+//            else
             {
                 flag = 1;
                 ins = "";

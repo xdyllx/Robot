@@ -21,7 +21,11 @@ private:
         Processor_cpu
     };
 
+
+
     cv::Mat rgbmat, depthmat, irmat, graymat, hsv;
+
+
 
     std::vector<cv::Vec3f> circles;
     int flag[256];
@@ -46,12 +50,44 @@ public:
     void Init();
     int getOnePicture();
     void ObserveObstacle();
+    //static int cmp(type x, type y);
+private:
+    double dist(double x1, double y1, double x2, double y2)		//计算圆心间距离判断是否重叠
+    {
+        return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+    }
+
+    void ChangeColor(cv::Mat *p,int x,int y,int r,int g,int b);		//改变图中的颜色信息
+
+    CvScalar Get(cv::Mat *p, int x, int y);		//获得某个点的颜色信息
+
+    size_t Floodfill(size_t x);		//使用floodfill算法对圆重叠进行判断
+
+    CvScalar Color(double xx, double yy, double rr);   //计算圆内有效颜色的中位数得到颜色
+
+    double isCircle(double xx, double yy, double rr); //计算圆边界有效颜色占比，用来判断是否是圆
+
+    double Per(double xx, double yy, double rr);   //计算圆中有效颜色点占比
+
+    double Dist(float *dep, double xx, double yy, double rr);   //计算圆与kinect距离的中位数得到距离信息
+
     bool isObst(int i, int j);
+
+
 public:
     int robot_status; //1-have obstacle 0-no obstacle
     bool isWorking;
-
+    std::string rg_message;
+    bool rgWorking;
+    struct type
+    {
+        int RorG;
+        double Dis;
+        double x, y, r;
+    };
 };
+
+
 
 void* thread_run(void*);
 

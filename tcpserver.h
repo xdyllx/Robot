@@ -16,11 +16,10 @@ public:
     void sendMessage(std::string);
 
 public:
-    std::string rg_message;
+    //std::string rg_message;
     std::string ins; //instruction
-    bool rg[3]; //1-red,0-green
     int flag;
-    bool rgflag = false; // be true when counter rg traffic
+
 
 
 private:

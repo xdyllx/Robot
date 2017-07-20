@@ -26,6 +26,7 @@ Robot::Robot(TcpServer *_t)
 void Robot::init()
 {
     //cout << "into init" <<endl;
+    memset(rg, 0, sizeof(rg));
     robot_vel = 65;
     RotateVelMax = 20;
     status = 0;
@@ -87,10 +88,31 @@ void Robot::run()
 {
     cout <<"run "<<endl;
 #define inst t->ins
-#define rg t->rg
-#define rgflag t->rgflag
+//#define rg t->rg
+//#define rgflag t->rgflag
     while(1)
     {
+        if(k->rg_message.substr(0,4) == "turn")
+        {
+            rgflag = true;
+            if(k->rg_message == "turnrrr")
+            {
+                inst = "stop";
+            }
+            for(int i=0;i<3;i++)
+            {
+                if(k->rg_message[i+4] == 'r')
+                    rg[i] = true;
+                else if(k->rg_message[i+4] == 'g')
+                    rg[i] = false;
+                else
+                {
+                    std::cout << "shit error,reveive "<<k->rg_message << std::endl;
+                }
+            }
+            k->rg_message = "";
+        }
+
         if(t->flag == 1)
         {
             cout << "in flag" <<endl;
@@ -126,7 +148,7 @@ void Robot::run()
                     Reset();
                 cout << "receive left" << endl;
                 RobotRotate(90);
-                t->sendMessage("haveturn");
+                //t->sendMessage("haveturn");
             }
             else if(inst == "right"){
                 if(rg[2])
@@ -135,7 +157,7 @@ void Robot::run()
                     Reset();
                 cout << "receive right" << endl;
                 RobotRotate(-90);
-                t->sendMessage("haveturn");
+                //t->sendMessage("haveturn");
             }
             else if(inst == "exit"){
                 cout << "receive exit" << endl;
@@ -173,7 +195,7 @@ void Robot::run()
                 cout << "k->isWorking = " << k->isWorking <<endl;
             }
             else{
-                cout << "error, inst= " << inst <<" rg_ins="<<t->rg_message<< endl;
+                cout << "error, inst= " << inst <<" rg_ins="<<k->rg_message<< endl;
             }
             inst = "";
         }
@@ -251,7 +273,7 @@ void Robot::AvoidSide()
     bool working = 1;
     int smalldistance = 160;
     double tmpangle = 35;
-    double smallangle = 20;
+    //double smallangle = 20;
     int pictureres;
     while(working && inst != "stop")
     {
