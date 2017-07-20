@@ -166,8 +166,11 @@ void Robot::run()
             }
             else if(inst == "obstacle")
             {
-                status = 1;
-                AvoidSide();
+//                status = 1;
+//                AvoidSide();
+                k->isWorking = 1 - k->isWorking;
+
+                cout << "k->isWorking = " << k->isWorking <<endl;
             }
             else{
                 cout << "error, inst= " << inst <<" rg_ins="<<t->rg_message<< endl;
@@ -228,6 +231,7 @@ void Robot::Reset()
     rgflag = false;
     t->flag = 0;
     status = 0;
+    k->robot_status = 0;
 }
 
 void Robot::str2int(int &int_temp, const string &string_temp)

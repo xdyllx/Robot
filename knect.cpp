@@ -80,7 +80,7 @@ void Knect::Init()
 
     dev->start();
     robot_status = 0;
-    isWorking = true;
+    isWorking = false;
 
     FILE *fin = fopen("init.txt","r");
     for (int i=0; i<424; i++)
@@ -197,7 +197,7 @@ void Knect::ObserveObstacle()
         if (mindep > 5000)
         {
             robot_status = 1;
-//            int  sendF= (int)(float(256 - minj) / 512.0 * 60.0) + 5;
+            int  sendF= (int)(float(256 - minj) / 512.0 * 60.0) + 5;
 //            if (minj > 256) sendF = 5;
 //            strcpy(send_buf, "00obstacle");
 //            send_buf[10] = (sendF/10) + '0';
