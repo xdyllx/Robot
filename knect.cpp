@@ -88,8 +88,14 @@ void Knect::Init()
             fscanf(fin, "%f", &init[i][j]);
 
     fclose(fin);
+    for (int i=0; i<414; i++)
+        for (int j=0; j<512; j++)
+        {
+            if (init[i][j] < 1e-8) init[i][j] = 500.0;
+        }
     pthread_create(&thr, NULL, thread_run, this);
     pthread_detach(thr);
+    cv::namedWindow("rgb", WND_PROP_ASPECT_RATIO);
 }
 
 int Knect::getOnePicture()
@@ -148,12 +154,17 @@ double sqr(double x)
 
 void Knect::ObserveObstacle()
 {
-    cv::namedWindow("rgb", WND_PROP_ASPECT_RATIO);
+    if(!isWorking)
+    {
+        sleep(1);
+        continue;
+    }
+
     libfreenect2::Registration* registration = new libfreenect2::Registration(dev->getIrCameraParams(), dev->getColorCameraParams());
     libfreenect2::Frame undistorted(512, 424, 4), registered(512, 424, 4), depth2rgb(1920, 1080 + 2, 4);
-    int k = 25;	//调整参数以得到圆
-    int minR = 20;
-    int minDis = 2;
+//    int k = 25;	//调整参数以得到圆
+//    int minR = 20;
+//    int minDis = 2;
     libfreenect2::FrameMap frames;
     while(!protonect_shutdown)
     {
@@ -325,25 +336,21 @@ void Knect::ObserveObstacle()
                     if (Circle[0].RorG == 250)
                     {
                         rg_message = "turnrrg";
-                        //strcpy(send_buf, "00turnrrg");
                         printf("Right\n");
                     }
                     else if (Circle[1].RorG == 250)
                     {
                         rg_message = "turnrgr";
-                        //strcpy(send_buf, "00turnrgr");
                         printf("Go\n");
                     }
                     else if (Circle[2].RorG == 250)
                     {
                         rg_message = "turngrr";
-                        //strcpy(send_buf, "00turngrr");
                         printf("Left\n");
                     }
                     else
                     {
                         rg_message = "turnrrr";
-                        //strcpy(send_buf, "00turnrrr");
                         printf("Stop\n");
                     }
 
@@ -353,27 +360,21 @@ void Knect::ObserveObstacle()
         float *dep2_ = (float*)depthmat2.data;		//将深度图信息放到dep数组中
 
         cv::imshow("rgb", rgbmat);
-        if(!isWorking)
-        {
-            //sleep(1);
-            listener->release(frames);
-            continue;
-        }
+//        if(!isWorking)
+//        {
+//            //sleep(1);
+//            listener->release(frames);
+//            continue;
+//        }
         for (int i=0; i<424; i++)
             for (int j=0; j<512; j++)
                 depobstacle[i][j] = dep2_[i*512+j];
-        FILE *fin = fopen("init.txt","r");
-        for (int i=0; i<424; i++)
-            for (int j=0; j<512; j++)
-                fscanf(fin, "%f", &init[i][j]);
-
-        fclose(fin);
 
         for (int i=0; i<414; i++)
             for (int j=0; j<512; j++)
             {
                 if (depobstacle[i][j] < 1e-8) depobstacle[i][j] = 500.0;
-                if (init[i][j] < 1e-8) init[i][j] = 500.0;
+                //if (init[i][j] < 1e-8) init[i][j] = 500.0;
             }
 
         int minj = 512, maxj = 0, mindep = 0;
@@ -397,15 +398,8 @@ void Knect::ObserveObstacle()
         {
             robot_status = 1;
             int  sendF= (int)(float(256 - minj) / 512.0 * 60.0) + 5;
-//            if (minj > 256) sendF = 5;
-//            strcpy(send_buf, "00obstacle");
-//            send_buf[10] = (sendF/10) + '0';
-//            send_buf[11] = (sendF%10) + '0';
-//            send_buf[12] = '\0';
             printf("sendF =%d\n", sendF);
-//            printf("%s\n", send_buf);
             printf("Obstacle, Stop\n");
-            //send(sockfd, send_buf, strlen(send_buf), 0);   // 向服务器发送信息
         }
         else
         {
