@@ -25,6 +25,7 @@ private:
     void AvoidSide();
 
 private:
+    double tmpangle;
     int status; // used to avoid obstacle
     int RotateVelMax;
     TcpServer *t;

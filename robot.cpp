@@ -205,10 +205,10 @@ void Robot::run()
         {
             k->isWorking = false;
             status = 1;
+            tmpangle = k->angle;
             AvoidSide();
         }
         sleep(0.5);
-
     }
 }
 
@@ -273,8 +273,9 @@ void Robot::AvoidSide()
     //3:move 1000 right 30 observe if have left 30 status = 2 if not status = 4
     //4:move 1000 left 30
     bool working = 1;
-    int smalldistance = 160;
-    double tmpangle = 35;
+    int smalldistance = 220;
+    int movedis = 540 / cos(tmpangle/180*3.1415926);
+    //double tmpangle = 37;
     //double smallangle = 20;
     int pictureres;
     while(working && inst != "stop")
@@ -287,7 +288,7 @@ void Robot::AvoidSide()
             break;
         case 1:
             RobotRotate(tmpangle);
-            Move(650);
+            Move(movedis);
             RobotRotate(-tmpangle);
             status = 2;
             break;
@@ -322,7 +323,7 @@ void Robot::AvoidSide()
                 return;
             break;
         case 4:
-            Move(650);
+            Move(movedis);
             RobotRotate(tmpangle);
             status = 0;
             break;

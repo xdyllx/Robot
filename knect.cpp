@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <math.h>
 using namespace std;
 using namespace cv;
 
@@ -121,10 +122,14 @@ int Knect::getOnePicture()
         for (int j=0; j<512; j++)
             depobstacle[i][j] = dep_[i*512+j];
     //cout << "dep=" <<dep[0][0] <<endl;
-    //cv::imwrite("output.jpg", depthmat);
+    static int pic_count = 0;
+    pic_count++;
+    std::string name = "output" + char(48+pic_count);
+    name += ".jpg";
+    cv::imwrite(name, depthmat);
 
     int black_count = 0;
-    for(int i=300;i<424;i++)
+    for(int i=280;i<424;i++)
     {
         for(int j=0;j<25;j++)
         {
@@ -133,7 +138,7 @@ int Knect::getOnePicture()
         }
     }
     listener->release(frames);
-    if(black_count > 25*115)
+    if(black_count > 25*135)
     {
         cout << "right obstacle" <<endl;
         return 1;
@@ -154,11 +159,6 @@ double sqr(double x)
 
 void Knect::ObserveObstacle()
 {
-    if(!isWorking)
-    {
-        sleep(1);
-        continue;
-    }
 
     libfreenect2::Registration* registration = new libfreenect2::Registration(dev->getIrCameraParams(), dev->getColorCameraParams());
     libfreenect2::Frame undistorted(512, 424, 4), registered(512, 424, 4), depth2rgb(1920, 1080 + 2, 4);
@@ -166,8 +166,16 @@ void Knect::ObserveObstacle()
 //    int minR = 20;
 //    int minDis = 2;
     libfreenect2::FrameMap frames;
+    double dis = 600;
+    double width = 360;
     while(!protonect_shutdown)
     {
+        if(!isWorking)
+        {
+            sleep(1);
+            continue;
+        }
+
         //cout << "before wait" <<endl;
         listener->waitForNewFrame(frames);
         libfreenect2::Frame *rgb = frames[libfreenect2::Frame::Color];
@@ -192,6 +200,9 @@ void Knect::ObserveObstacle()
             for (int j=0;j<hsv.cols;j++)
             {
                 now = Get(&hsv, i, j);
+                if (i < 100 || i > hsv.rows-400 || j < 300 || j > hsv.cols-300)
+                    ChangeColor(&hsv,i,j,0,0,0);
+                else
                 if (now.val[0]<185 && now.val[0]>160)
                     ChangeColor(&hsv,i,j,245,255,255);
                 else if (now.val[0]<73 && now.val[0]>57
@@ -219,7 +230,7 @@ void Knect::ObserveObstacle()
         {
             circles.clear();
             HoughCircles(graymat, circles, CV_HOUGH_GRADIENT, 1, minDis_, 240, k_, minR_, 1000);
-            if ((int)circles.size() < 10)
+            if ((int)circles.size() < 30)
             {
                 minDis_ --;
                 minR_ -= 10;
@@ -331,7 +342,7 @@ void Knect::ObserveObstacle()
             if (sqr(argDis-Circle[0].Dis) + sqr(argDis-Circle[1].Dis) + sqr(argDis-Circle[2].Dis) < 750.0)
             {
                 printf("%0.2lf\n", argDis);
-                if (argDis < 700.0)
+                if (argDis < 750.0)
                 {
                     if (Circle[0].RorG == 250)
                     {
@@ -359,7 +370,6 @@ void Knect::ObserveObstacle()
         }
         float *dep2_ = (float*)depthmat2.data;		//将深度图信息放到dep数组中
 
-        cv::imshow("rgb", rgbmat);
 //        if(!isWorking)
 //        {
 //            //sleep(1);
@@ -378,14 +388,20 @@ void Knect::ObserveObstacle()
             }
 
         int minj = 512, maxj = 0, mindep = 0;
+        int Flag = 0;
 
         for (int i=0; i<414; i++)
-            for (int j=128; j<384; j++)
+            for (int j=100; j<485; j++)
             {
-                if (isObst(i, j)
-                   && isObst(i-1, j) && isObst(i+1, j) && isObst(i, j-1) && isObst(i, j+1)
-                   && isObst(i-1, j-1) && isObst(i+1, j-1) && isObst(i-1, j+1) && isObst(i+1, j+1)
-                   && isObst(i-10, j-10) && isObst(i+10, j-10) && isObst(i-10, j+10) && isObst(i+10, j+10))
+                Flag = 0;
+                for (int k = i-8; k <= i+8; k++)
+                    for (int l = j-8; l <= j+8; l++)
+                        if (!isObst(k, l))
+                        {
+                            Flag = 1;
+                            break;
+                        }
+                if (!Flag)
                 {
                     if (j < minj) minj = j;
                     if (j > maxj) maxj = j;
@@ -394,11 +410,15 @@ void Knect::ObserveObstacle()
                 }
             }
 
+
+        cv::imshow("rgb", depthmat2);
         if (mindep > 5000)
-        {
+        {           
+            //double  sendF= (double( minj - 256) / 512.0 * 70.0) - 5;
+            double tmpF = (double( maxj - 256) / 512.0 * 70.0);
+            angle = atan((dis * tan(tmpF * PI / 180) +width)/dis) / PI * 180;
             robot_status = 1;
-            int  sendF= (int)(float(256 - minj) / 512.0 * 60.0) + 5;
-            printf("sendF =%d\n", sendF);
+            printf("tmpF =%f, angle = %f\n",tmpF,angle);
             printf("Obstacle, Stop\n");
         }
         else
@@ -409,7 +429,7 @@ void Knect::ObserveObstacle()
         protonect_shutdown = protonect_shutdown || (key > 0 && ((key & 0xFF) == 27)); // shutdown on escape
 
         listener->release(frames);
-        sleep(1);
+        //sleep(0.5);
     }
 }
 
@@ -553,7 +573,7 @@ double Knect::Dist(float *dep, double xx, double yy, double rr)
 bool Knect::isObst(int i, int j)
 {
     if (i < 0 || j < 0 || i >= 424 || j >= 512) return 0;
-    return init[i][j] - depobstacle[i][j] > 20 && depobstacle[i][j] < 600;
+    return init[i][j] - depobstacle[i][j] > 20 && depobstacle[i][j] < 650;
 }
 
 void *thread_run(void *args)

@@ -44,6 +44,7 @@ private:
             libfreenect2::Frame::Ir);*/
 
     pthread_t thr;
+    static const double PI = 3.1415926;
 
 public:
     Knect();
@@ -79,6 +80,7 @@ public:
     bool isWorking;
     std::string rg_message;
     bool rgWorking;
+    double angle;
     struct type
     {
         int RorG;
