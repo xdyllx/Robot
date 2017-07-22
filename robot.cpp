@@ -92,7 +92,7 @@ void Robot::run()
 //#define rgflag t->rgflag
     while(1)
     {
-
+        k->getOneSence();
         if(k->rg_message.substr(0,4) == "turn")
         {
             rgflag = true;
@@ -208,7 +208,7 @@ void Robot::run()
             tmpangle = k->angle;
             AvoidSide();
         }
-        sleep(0.5);
+        sleep(1);
     }
 }
 

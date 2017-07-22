@@ -25,8 +25,8 @@ unix:!macx: LIBS += -L$$PWD/../freenect2/lib/ -lfreenect2
 INCLUDEPATH += $$PWD/../../freenect2/lib
 DEPENDPATH += $$PWD/../../freenect2/lib
 
-INCLUDEPATH += /home/skyer/freenect2/include/libfreenect2
-INCLUDEPATH += /home/skyer/freenect2/include
+INCLUDEPATH += /home/xdy/freenect2/include/libfreenect2
+INCLUDEPATH += /home/xdy/freenect2/include
 
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_gpu
 
