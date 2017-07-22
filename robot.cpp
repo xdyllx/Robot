@@ -30,6 +30,7 @@ void Robot::init()
     robot_vel = 65;
     RotateVelMax = 20;
     status = 0;
+    stop = false;
     Aria::init(); //初始化
 
     int argc = 3;
@@ -98,8 +99,7 @@ void Robot::run()
             rgflag = true;
             if(k->rg_message == "turnrrr")
             {
-                t->flag = 1;
-                inst = "stop";
+                stop = true;
             }
             for(int i=0;i<3;i++)
             {
@@ -117,31 +117,28 @@ void Robot::run()
 
         if(t->flag == 1)
         {
-            cout << "in flag" <<endl;
+            //cout << "in flag" <<endl;
             //double rotate_temp = 90 + getRand();
-            t->flag = 0;
+
             //cout <<"rotate_tmp = "<<rotate_temp << endl;
             cout<<"rg:" << rg[0] << rg[1] << rg[2] <<endl;
             if(inst == "forward"){
                 if(rg[1])
                     continue;
                 if(rgflag)
-                {
-                    rgflag = false;
-                    memset(rg,0,sizeof(rg));
-                }
+                    Reset();
                 cout << "receive forward" << endl;
                 robot.setVel(robot_vel);
+                Reset();
             }
             else if(inst == "back")
             {
                 cout << "receive back" << endl;
                 robot.setVel(-200);
             }
-            else if(inst == "stop"){
+            else if(inst == "stop" ){
                 cout << "receive stop" << endl;
-                robot.stop();
-                continue;
+                stop = true;
             }
             else if(inst == "left"){
                 if(rg[0])
@@ -150,6 +147,7 @@ void Robot::run()
                     Reset();
                 cout << "receive left" << endl;
                 RobotRotate(90);
+                Reset();
                 //t->sendMessage("haveturn");
             }
             else if(inst == "right"){
@@ -159,6 +157,7 @@ void Robot::run()
                     Reset();
                 cout << "receive right" << endl;
                 RobotRotate(-90);
+                Reset();
                 //t->sendMessage("haveturn");
             }
             else if(inst == "exit"){
@@ -200,6 +199,12 @@ void Robot::run()
                 cout << "error, inst= " << inst <<" rg_ins="<<k->rg_message<< endl;
             }
             inst = "";
+            t->flag = 0;
+        }
+        if(stop)
+        {
+            robot.stop();
+            continue;
         }
         if(k->robot_status == 1)
         {
@@ -256,6 +261,7 @@ void Robot::Reset()
     t->flag = 0;
     status = 0;
     k->robot_status = 0;
+    stop = false;
 }
 
 void Robot::str2int(int &int_temp, const string &string_temp)

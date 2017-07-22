@@ -36,7 +36,7 @@ private:
     Knect *k;
     bool rg[3]; //1-red,0-green
     bool rgflag = false; // be true when counter rg traffic
-
+    bool stop;
 };
 
 #endif // ROBOT_H
