@@ -123,21 +123,21 @@ int Knect::getOnePicture()
     //cout << "dep=" <<dep[0][0] <<endl;
     static int pic_count = 0;
     pic_count++;
-    std::string name = "output" + char(48+pic_count);
-    name += ".jpg";
-    cv::imwrite(name, depthmat);
+//    std::string name = "output" + char(48+pic_count);
+//    name += ".jpg";
+//    cv::imwrite(name, depthmat);
 
     int black_count = 0;
     for(int i=280;i<424;i++)
     {
-        for(int j=0;j<25;j++)
+        for(int j=0;j<20;j++)
         {
             if(depobstacle[i][j] == 0)
                 ++black_count;
         }
     }
     listener->release(frames);
-    if(black_count > 25*135)
+    if(black_count > 20*135)
     {
         cout << "right obstacle" <<endl;
         return 1;
@@ -648,7 +648,7 @@ void Knect::getOneSence()
         {
             //sleep(1);
             listener->release(frames);
-            continue;
+            return;
         }
         for (int i=0; i<424; i++)
             for (int j=0; j<512; j++)
@@ -685,7 +685,7 @@ void Knect::getOneSence()
             }
 
 
-        cv::imshow("rgb", depthmat2);
+        //cv::imshow("rgb", depthmat2);
         if (mindep > 5000)
         {
             //double  sendF= (double( minj - 256) / 512.0 * 70.0) - 5;

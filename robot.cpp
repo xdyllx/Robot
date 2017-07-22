@@ -97,7 +97,7 @@ void Robot::run()
         if(k->rg_message.substr(0,4) == "turn")
         {
             rgflag = true;
-            if(k->rg_message == "turnrrr")
+            if(k->rg_message[5] == 'r')
             {
                 stop = true;
             }
@@ -213,7 +213,7 @@ void Robot::run()
             tmpangle = k->angle;
             AvoidSide();
         }
-        sleep(1);
+        sleep(0.8);
     }
 }
 

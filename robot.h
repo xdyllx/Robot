@@ -20,7 +20,7 @@ private:
     void RobotRotate(double);
     void Move(int);
     void Reset();
-    void PrintInfo();
+    //void PrintInfo();
     void str2int(int &int_temp,const std::string &string_temp);
     void AvoidSide();
 
