@@ -213,13 +213,13 @@ void Robot::run()
             tmpangle = k->angle;
             AvoidSide();
         }
-        sleep(0.8);
+        sleep(0.9);
     }
 }
 
 void Robot::RobotRotate(double angle)
 {
-    robot.setVel(0);
+    //robot.setVel(0);
     cout << "angle = "<< angle<<endl;
     if(angle > 25)
         angle += getRand();
@@ -280,7 +280,7 @@ void Robot::AvoidSide()
     //4:move 1000 left 30
     bool working = 1;
     int smalldistance = 220;
-    int movedis = 540 / cos(tmpangle/180*3.1415926);
+    int movedis = 510 / cos(tmpangle/180*3.1415926);
     //double tmpangle = 37;
     //double smallangle = 20;
     int pictureres;
@@ -293,6 +293,7 @@ void Robot::AvoidSide()
             Reset();
             break;
         case 1:
+            robot.stop();
             RobotRotate(tmpangle);
             Move(movedis);
             RobotRotate(-tmpangle);
@@ -303,6 +304,7 @@ void Robot::AvoidSide()
             //RobotRotate(-smallangle);
             //sleep(0.5);
             //bool tmp = k->getOnePicture();
+
             pictureres = k->getOnePicture();
             cout << "picture res=" <<pictureres <<endl;
             if(pictureres == 0)
@@ -314,7 +316,7 @@ void Robot::AvoidSide()
         case 3:
             Move(700);
             RobotRotate(-tmpangle);
-            sleep(0.5);
+            sleep(0.3);
             //bool tmp1 = k->getOnePicture();
             pictureres = k->getOnePicture();
             if(pictureres == 1)

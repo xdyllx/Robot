@@ -123,12 +123,13 @@ int Knect::getOnePicture()
     //cout << "dep=" <<dep[0][0] <<endl;
     static int pic_count = 0;
     pic_count++;
-//    std::string name = "output" + char(48+pic_count);
-//    name += ".jpg";
-//    cv::imwrite(name, depthmat);
+    std::string name = "output";
+    name += char(48+pic_count);
+    name += ".jpg";
+    cv::imwrite(name, depthmat);
 
     int black_count = 0;
-    for(int i=280;i<424;i++)
+    for(int i=300;i<424;i++)
     {
         for(int j=0;j<20;j++)
         {
@@ -137,7 +138,7 @@ int Knect::getOnePicture()
         }
     }
     listener->release(frames);
-    if(black_count > 20*135)
+    if(black_count > 20*115)
     {
         cout << "right obstacle" <<endl;
         return 1;
@@ -166,7 +167,7 @@ void Knect::ObserveObstacle()
 //    int minDis = 2;
     libfreenect2::FrameMap frames;
     double dis = 600;
-    double width = 360;
+    double width = 330;
     while(!protonect_shutdown)
     {
         if(!isWorking)
@@ -441,7 +442,7 @@ void Knect::getOneSence()
 //    int minDis = 2;
     libfreenect2::FrameMap frames;
     double dis = 600;
-    double width = 360;
+    double width = 310;
 //    while(!protonect_shutdown)
 //    {
 //        if(!isWorking)
