@@ -10,6 +10,7 @@
 #include <libfreenect2/logger.h>
 #include <pthread.h>
 
+#include "linefinder.h"
 
 class Knect
 {
@@ -44,14 +45,16 @@ private:
             libfreenect2::Frame::Ir);*/
 
     pthread_t thr;
-    static const double PI = 3.1415926;
+    constexpr static const double PI = 3.1415926;
 
 public:
     Knect();
     void Init();
-    int getOnePicture();
-    void ObserveObstacle();
-    void getOneSence();
+    int observeSideObstacle();
+    void Observe();
+    void getrgTraffic();
+
+
     //static int cmp(type x, type y);
 private:
     double dist(double x1, double y1, double x2, double y2)		//计算圆心间距离判断是否重叠

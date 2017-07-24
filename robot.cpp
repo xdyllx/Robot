@@ -93,7 +93,7 @@ void Robot::run()
 //#define rgflag t->rgflag
     while(1)
     {
-        k->getOneSence();
+        //k->getOneSence();
         if(k->rg_message.substr(0,4) == "turn")
         {
             rgflag = true;
@@ -221,8 +221,8 @@ void Robot::RobotRotate(double angle)
 {
     //robot.setVel(0);
     cout << "angle = "<< angle<<endl;
-    if(angle > 25)
-        angle += getRand();
+//    if(angle > 25)
+//        angle += getRand();
     robot.setDeltaHeading(angle);
     int tmpcount = 0;
     while(!robot.isHeadingDone() && tmpcount <10 && t->ins != "stop")
@@ -305,7 +305,7 @@ void Robot::AvoidSide()
             //sleep(0.5);
             //bool tmp = k->getOnePicture();
 
-            pictureres = k->getOnePicture();
+            pictureres = k->observeSideObstacle();
             cout << "picture res=" <<pictureres <<endl;
             if(pictureres == 0)
                 status = 3;
@@ -318,7 +318,7 @@ void Robot::AvoidSide()
             RobotRotate(-tmpangle);
             sleep(0.3);
             //bool tmp1 = k->getOnePicture();
-            pictureres = k->getOnePicture();
+            pictureres = k->observeSideObstacle();
             if(pictureres == 1)
             {
                 RobotRotate(tmpangle);
