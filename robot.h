@@ -23,6 +23,7 @@ private:
     //void PrintInfo();
     void str2int(int &int_temp,const std::string &string_temp);
     void AvoidSide();
+    void Align();
 
 private:
     double tmpangle;

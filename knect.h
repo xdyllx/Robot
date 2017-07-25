@@ -53,6 +53,7 @@ public:
     int observeSideObstacle();
     void Observe();
     void getrgTraffic();
+    int judgeLine();
 
 
     //static int cmp(type x, type y);
@@ -91,6 +92,8 @@ public:
         double Dis;
         double x, y, r;
     };
+
+    LineFinder finder;
 };
 
 

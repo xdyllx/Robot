@@ -1,5 +1,6 @@
 #include "linefinder.h"
 #include <iostream>
+#include <stdio.h>
 
 void LineFinder::setAccResolution(double dRho, double dTheta){
 
@@ -24,6 +25,7 @@ void LineFinder::setLineLengthAndGap(double length, double gap){
 vector<Vec4i> LineFinder::findLines(Mat &binary)
 {
     lines.clear();
+    //reslines.clear();
     HoughLinesP(binary, lines, deltaRho, deltaTheta, minVote, minLength, maxGap);
     lineRestrict();
     if(reslines.size() == 0)
@@ -34,15 +36,42 @@ vector<Vec4i> LineFinder::findLines(Mat &binary)
     }
     find = true;
     minpos = 0;
+    resslope.clear();
     for(int i=0;i<reslines.size();i++)
     {
-        double tmp = abs((double(reslines[i][0]-reslines[i][2]))/(reslines[i][1]-reslines[i][3]));
+        double tmp = (double(reslines[i][0]-reslines[i][2]))/(reslines[i][1]-reslines[i][3]);
         resslope.push_back(tmp);
-        if(resslope[i] < resslope[minpos])
+        if(abs(resslope[i]) < abs(resslope[minpos]))
             minpos = i;
     }
 
     printf("minpos = %d, min slope = %f\n", minpos, resslope[minpos]);
+    if(resslope[minpos] < 0)
+    {
+        if(listnum<listsize)
+        {
+            slopelist[listnum] = resslope[minpos];
+            ++listnum;
+        }
+        else if(listnum == listsize)
+        {
+            for(int i=0;i<listsize-1;i++)
+            {
+                slopelist[i] = slopelist[i+1];
+            }
+            slopelist[listnum-1] = resslope[minpos];
+            cout << "list: ";
+            for(int i=0;i<listnum;i++)
+            {
+                cout << slopelist[i] << ' ';
+            }
+            cout << endl;
+        }
+        else
+        {
+            cout << "list error" <<endl;
+        }
+    }
     return reslines;
 }
 
@@ -91,5 +120,32 @@ void LineFinder::drawDetectedLines(Mat &image,Scalar color)
 //        line(image, pt1, pt2, color);
 
 //        ++it2;
-//    }
+    //    }
+}
+
+int LineFinder::judgeLine()
+{
+    if(listnum<listsize)
+        return 0;
+    //judge left crooked, turn smaller gradually
+    bool flag = true;
+    for(int i=0;i<listsize-1;i++)
+    {
+        if(slopelist[i] <= slopelist[i+1])
+            flag = false;
+    }
+    if(flag)
+        return 1;
+
+    //judge right crooked, turn bigger gradually
+    flag = true;
+    for(int i=0;i<listsize-1;i++)
+    {
+        if(slopelist[i] >= slopelist[i+1])
+            flag = false;
+    }
+    if(flag)
+        return 2;
+
+    return 0;
 }

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <sstream>
 #include <stdio.h>
+#include <ariaUtil.h>
 using namespace std;
 
 double getRand() //get random number in [-1,1]
@@ -26,6 +27,7 @@ Robot::Robot(TcpServer *_t)
 void Robot::init()
 {
     //cout << "into init" <<endl;
+    srand((unsigned)time(NULL));
     memset(rg, 0, sizeof(rg));
     robot_vel = 65;
     RotateVelMax = 20;
@@ -121,7 +123,7 @@ void Robot::run()
             //double rotate_temp = 90 + getRand();
 
             //cout <<"rotate_tmp = "<<rotate_temp << endl;
-            cout<<"rg:" << rg[0] << rg[1] << rg[2] <<endl;
+
             if(inst == "forward"){
                 if(rg[1])
                     continue;
@@ -195,15 +197,21 @@ void Robot::run()
 
                 cout << "k->isWorking = " << k->isWorking <<endl;
             }
+            else if(inst == "align")
+            {
+                Align();
+            }
             else{
                 cout << "error, inst= " << inst <<" rg_ins="<<k->rg_message<< endl;
             }
+            cout<<"rg:" << rg[0] << rg[1] << rg[2] <<endl;
             inst = "";
             t->flag = 0;
         }
         if(stop)
         {
             robot.stop();
+            stop = false;
             continue;
         }
         if(k->robot_status == 1)
@@ -213,7 +221,7 @@ void Robot::run()
             tmpangle = k->angle;
             AvoidSide();
         }
-        sleep(0.9);
+        sleep(0.5);
     }
 }
 
@@ -225,11 +233,11 @@ void Robot::RobotRotate(double angle)
 //        angle += getRand();
     robot.setDeltaHeading(angle);
     int tmpcount = 0;
-    while(!robot.isHeadingDone() && tmpcount <10 && t->ins != "stop")
+    while(!robot.isHeadingDone() && tmpcount <20 && t->ins != "stop")
     {
-        sleep(1);
+        sleep(0.5);
         tmpcount++;
-        cout << "in rotate" << endl;
+        //cout << "in rotate" << endl;
 
     }
 }
@@ -239,8 +247,8 @@ void Robot::Move(int distance)
     robot.move(distance);
     while(!robot.isMoveDone() && t->ins != "stop")
     {
-        sleep(1);
-        cout << "is moving" <<endl;
+        sleep(0.5);
+        //cout << "is moving" <<endl;
     }
 //    int vel = 120;
 //    robot.setVel(vel);
@@ -340,4 +348,39 @@ void Robot::AvoidSide()
         }
 
     }
+}
+
+void Robot::Align()
+{
+    robot.setVel(15);
+    int tmpcount = 0;
+    double smallangle = getRand() / 2 + 1.5;
+    while(tmpcount < 35 && inst != "stop")
+    {
+        ++tmpcount;
+        int res = k->finder.judgeLine();
+        cout << "judge line res = " << res <<endl;
+        if(res  == 1)
+        {
+            RobotRotate(-smallangle);
+            k->finder.slopelist[0] = k->finder.slopelist[k->finder.listnum-1];
+            k->finder.listnum = 1;
+            ArUtil::sleep(900);
+            //sleep(0.6);
+        }
+        else if(res == 2)
+        {
+            RobotRotate(smallangle);
+            k->finder.slopelist[0] = k->finder.slopelist[k->finder.listnum-1];
+            k->finder.listnum = 1;
+            ArUtil::sleep(900);
+            //sleep(0.6);
+        }
+        else
+        {
+            ArUtil::sleep(1000);
+            //sleep(1);
+        }
+    }
+    robot.stop();
 }

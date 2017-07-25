@@ -373,8 +373,6 @@ void Knect::Observe()
             125,    //低阈值
             350);   //高阈值
 
-        //创建LineFinder实例
-        LineFinder finder;
         //设置概率Hough参数
         finder.setLineLengthAndGap(100, 20);
         finder.setMinVote(80);
@@ -452,6 +450,7 @@ void Knect::Observe()
         //sleep(0.5);
     }
 }
+
 
 
 void Knect::ChangeColor(Mat *p, int x, int y, int r, int g, int b)
