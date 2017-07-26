@@ -60,12 +60,7 @@ vector<Vec4i> LineFinder::findLines(Mat &binary)
                 slopelist[i] = slopelist[i+1];
             }
             slopelist[listnum-1] = resslope[minpos];
-            cout << "list: ";
-            for(int i=0;i<listnum;i++)
-            {
-                cout << slopelist[i] << ' ';
-            }
-            cout << endl;
+
         }
         else
         {
@@ -134,7 +129,7 @@ int LineFinder::judgeLine()
         if(slopelist[i] <= slopelist[i+1])
             flag = false;
     }
-    if(flag)
+    if(flag && abs(slopelist[listnum-1] - slopelist[0]) > 0.01)
         return 1;
 
     //judge right crooked, turn bigger gradually
@@ -144,7 +139,7 @@ int LineFinder::judgeLine()
         if(slopelist[i] >= slopelist[i+1])
             flag = false;
     }
-    if(flag)
+    if(flag && abs(slopelist[listnum-1] - slopelist[0]) > 0.01)
         return 2;
 
     return 0;

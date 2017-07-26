@@ -438,6 +438,9 @@ void Knect::Observe()
             robot_status = 1;
             printf("tmpF =%f, angle = %f\n",tmpF,angle);
             printf("Obstacle, Stop\n");
+            cv::imwrite("depthmat.jpg",depthmat);
+            cv::imwrite("depthmat2.jpg",depthmat2);
+            cv::imwrite("rgbmat.jpg",rgbmat);
         }
         else
         {

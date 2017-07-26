@@ -233,11 +233,11 @@ void Robot::RobotRotate(double angle)
 //        angle += getRand();
     robot.setDeltaHeading(angle);
     int tmpcount = 0;
-    while(!robot.isHeadingDone() && tmpcount <20 && t->ins != "stop")
+    while(!robot.isHeadingDone() && tmpcount <20)
     {
-        sleep(0.5);
+        ArUtil::sleep(500);
         tmpcount++;
-        //cout << "in rotate" << endl;
+        cout << "in rotate" << endl;
 
     }
 }
@@ -247,7 +247,7 @@ void Robot::Move(int distance)
     robot.move(distance);
     while(!robot.isMoveDone() && t->ins != "stop")
     {
-        sleep(0.5);
+        ArUtil::sleep(500);
         //cout << "is moving" <<endl;
     }
 //    int vel = 120;
@@ -352,16 +352,24 @@ void Robot::AvoidSide()
 
 void Robot::Align()
 {
+    k->finder.listnum = 0;
+    sleep(1);
     robot.setVel(15);
     int tmpcount = 0;
     double smallangle = getRand() / 2 + 1.5;
-    while(tmpcount < 35 && inst != "stop")
+    while(tmpcount < 40 && inst != "stop")
     {
         ++tmpcount;
         int res = k->finder.judgeLine();
         cout << "judge line res = " << res <<endl;
         if(res  == 1)
         {
+            cout << "list: ";
+            for(int i=0;i<k->finder.listnum;i++)
+            {
+                cout << k->finder.slopelist[i] << ' ';
+            }
+            cout << k->finder.slopelist[k->finder.listnum-1] - k->finder.slopelist[0]  << endl;
             RobotRotate(-smallangle);
             k->finder.slopelist[0] = k->finder.slopelist[k->finder.listnum-1];
             k->finder.listnum = 1;
@@ -370,6 +378,13 @@ void Robot::Align()
         }
         else if(res == 2)
         {
+            cout << "list: ";
+            for(int i=0;i<k->finder.listnum;i++)
+            {
+                cout << k->finder.slopelist[i] << ' ';
+            }
+            cout << k->finder.slopelist[k->finder.listnum-1] - k->finder.slopelist[0]  << endl;
+
             RobotRotate(smallangle);
             k->finder.slopelist[0] = k->finder.slopelist[k->finder.listnum-1];
             k->finder.listnum = 1;

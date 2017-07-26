@@ -36,7 +36,7 @@ public:
 public:
     //默认的累加器的分辨率为单个像素即1  不设置缺口及最小长度的值
     LineFinder() :deltaRho(1), deltaTheta(M_PI / 180), minVote(10), minLength(0.), maxGap(0.){}
-    static const int Min = 900;
+    static const int Min = 980;
     //设置累加器的分辨率
     void setAccResolution(double dRho, double dTheta);
 

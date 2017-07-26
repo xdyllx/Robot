@@ -45,7 +45,7 @@ private:
             libfreenect2::Frame::Ir);*/
 
     pthread_t thr;
-    constexpr static const double PI = 3.1415926;
+    static const double PI = 3.1415926;
 
 public:
     Knect();
