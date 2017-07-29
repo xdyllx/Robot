@@ -1,4 +1,4 @@
-#include "knect.h"
+﻿#include "kinect.h"
 #include <time.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,12 +8,12 @@
 using namespace std;
 using namespace cv;
 
-Knect::Knect()
+Kinect::Kinect()
 {
     Init();
 }
 
-void Knect::Init()
+void Kinect::Init()
 {
     if(freenect2.enumerateDevices() == 0)
     {
@@ -82,7 +82,6 @@ void Knect::Init()
     dev->start();
     robot_status = 0;
     isWorking = false;
-    rgWorking = true;
     FILE *fin = fopen("init.txt","r");
     for (int i=0; i<424; i++)
         for (int j=0; j<512; j++)
@@ -97,9 +96,13 @@ void Knect::Init()
     pthread_create(&thr, NULL, thread_run, this);
     pthread_detach(thr);
     cv::namedWindow("rgb", WND_PROP_ASPECT_RATIO);
+
+    //设置概率Hough参数
+    finder.setLineLengthAndGap(100, 20);
+    finder.setMinVote(80);
 }
 
-int Knect::observeSideObstacle()
+int Kinect::observeSideObstacle()
 {
 //    libfreenect2::FrameMap frames;
 //    cout << "before wait"<<endl;
@@ -121,7 +124,7 @@ int Knect::observeSideObstacle()
     for (int i=0; i<424; i++)
         for (int j=0; j<512; j++)
             depobstacle[i][j] = dep_[i*512+j];
-    //cout << "dep=" <<dep[0][0] <<endl;
+
 //    static int pic_count = 0;
 //    pic_count++;
 //    std::string name = "output";
@@ -148,7 +151,7 @@ int Knect::observeSideObstacle()
         return 0;
 }
 
-int cmp(Knect::type x, Knect::type y)
+int cmp(Kinect::type x, Kinect::type y)
 {
     return x.x < y.x;
 }
@@ -158,7 +161,7 @@ double sqr(double x)
     return x*x;
 }
 
-void Knect::Observe()
+void Kinect::Observe()
 {
 
     libfreenect2::Registration* registration = new libfreenect2::Registration(dev->getIrCameraParams(), dev->getColorCameraParams());
@@ -373,9 +376,7 @@ void Knect::Observe()
             125,    //低阈值
             350);   //高阈值
 
-        //设置概率Hough参数
-        finder.setLineLengthAndGap(100, 20);
-        finder.setMinVote(80);
+
         //检测并绘制直线
         vector<Vec4i>reslines = finder.findLines(contours);
 
@@ -456,14 +457,14 @@ void Knect::Observe()
 
 
 
-void Knect::ChangeColor(Mat *p, int x, int y, int r, int g, int b)
+void Kinect::ChangeColor(Mat *p, int x, int y, int r, int g, int b)
 {
     p->data[(x*p->cols+y)*3]=r;
     p->data[(x*p->cols+y)*3+1]=g;
     p->data[(x*p->cols+y)*3+2]=b;
 }
 
-CvScalar Knect::Get(Mat *p, int x, int y)
+CvScalar Kinect::Get(Mat *p, int x, int y)
 {
     CvScalar t;
     t.val[0] = p->data[(x*p->cols+y)*3];
@@ -472,7 +473,7 @@ CvScalar Knect::Get(Mat *p, int x, int y)
     return t;
 }
 
-size_t Knect::Floodfill(size_t x)
+size_t Kinect::Floodfill(size_t x)
 {
     size_t now = x;
     flag[(int)x] = 2;
@@ -490,7 +491,7 @@ size_t Knect::Floodfill(size_t x)
     return now;
 }
 
-CvScalar Knect::Color(double xx, double yy, double rr)
+CvScalar Kinect::Color(double xx, double yy, double rr)
 {
     int r=cvRound(rr);
     CvScalar now;
@@ -525,7 +526,7 @@ CvScalar Knect::Color(double xx, double yy, double rr)
     return mid;
 }
 
-double Knect::isCircle(double xx, double yy, double rr)
+double Kinect::isCircle(double xx, double yy, double rr)
 {
     int r=cvRound(rr);
     CvScalar now;
@@ -547,7 +548,7 @@ double Knect::isCircle(double xx, double yy, double rr)
     return (double(sum)/double(sumAll));
 }
 
-double Knect::Per(double xx, double yy, double rr)
+double Kinect::Per(double xx, double yy, double rr)
 {
     int r=cvRound(rr);
     CvScalar now;
@@ -568,7 +569,7 @@ double Knect::Per(double xx, double yy, double rr)
     return double(sum)/double(sumAll);
 }
 
-double Knect::Dist(float *dep, double xx, double yy, double rr)
+double Kinect::Dist(float *dep, double xx, double yy, double rr)
 {
     int r=cvRound(rr);
     double sumDep = 0, sumD = 0;
@@ -593,7 +594,7 @@ double Knect::Dist(float *dep, double xx, double yy, double rr)
     return sumDep/(sumD+1e-8);
 }
 
-bool Knect::isObst(int i, int j)
+bool Kinect::isObst(int i, int j)
 {
     if (i < 0 || j < 0 || i >= 424 || j >= 512) return 0;
     return init[i][j] - depobstacle[i][j] > 20 && depobstacle[i][j] < 650;
@@ -601,6 +602,6 @@ bool Knect::isObst(int i, int j)
 
 void *thread_run(void *args)
 {
-    Knect *k = static_cast<Knect *>(args);
+    Kinect *k = static_cast<Kinect *>(args);
     k->Observe();
 }

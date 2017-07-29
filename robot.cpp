@@ -1,4 +1,4 @@
-#include "robot.h"
+﻿#include "robot.h"
 #include <time.h>
 #include <stdlib.h>
 #include <sstream>
@@ -26,7 +26,6 @@ Robot::Robot(TcpServer *_t)
 
 void Robot::init()
 {
-    //cout << "into init" <<endl;
     srand((unsigned)time(NULL));
     memset(rg, 0, sizeof(rg));
     robot_vel = 65;
@@ -80,16 +79,14 @@ void Robot::init()
     robot.comInt(ArCommands::ENABLE,1);
     robot.unlock();
     sleep(1);
-    //robot.setAbsoluteMaxRotVel(15);
     robot.setRotVelMax(RotateVelMax);
 
-    k = new Knect();
+    k = new Kinect();
 
 }
 
 void Robot::run()
 {
-    cout <<"run "<<endl;
 #define inst t->ins
 //#define rg t->rg
 //#define rgflag t->rgflag
@@ -119,7 +116,6 @@ void Robot::run()
 
         if(t->flag == 1)
         {
-            //cout << "in flag" <<endl;
             //double rotate_temp = 90 + getRand();
 
             //cout <<"rotate_tmp = "<<rotate_temp << endl;
@@ -250,16 +246,6 @@ void Robot::Move(int distance)
         ArUtil::sleep(500);
         //cout << "is moving" <<endl;
     }
-//    int vel = 120;
-//    robot.setVel(vel);
-//    int seconds = distance / vel;
-//    int tmp = 0;
-//    while(tmp < seconds)
-//    {
-//        sleep(1);
-//        ++tmp;
-//    }
-//    robot.setVel(0);
 }
 
 void Robot::Reset()
@@ -284,7 +270,7 @@ void Robot::AvoidSide()
     //0: no obstacle
     //1: left 30.move 1000, right30
     //2: move 1000,right 30 observe if have status = 2 if not status = 3  left 30
-    //3:move 1000 right 30 observe if have left 30 status = 2 if not status = 4
+    //3:move 220 right 30 observe if have left 30 status = 2 if not status = 4
     //4:move 1000 left 30
     bool working = 1;
     int smalldistance = 220;
@@ -325,7 +311,6 @@ void Robot::AvoidSide()
             Move(700);
             RobotRotate(-tmpangle);
             sleep(0.3);
-            //bool tmp1 = k->getOnePicture();
             pictureres = k->observeSideObstacle();
             if(pictureres == 1)
             {
@@ -356,9 +341,10 @@ void Robot::Align()
     sleep(1);
     robot.setVel(15);
     int tmpcount = 0;
-    double smallangle = getRand() / 2 + 1.5;
+    double smallangle;
     while(tmpcount < 40 && inst != "stop")
     {
+        smallangle = getRand() / 2 + 1.5;
         ++tmpcount;
         int res = k->finder.judgeLine();
         cout << "judge line res = " << res <<endl;
@@ -374,7 +360,6 @@ void Robot::Align()
             k->finder.slopelist[0] = k->finder.slopelist[k->finder.listnum-1];
             k->finder.listnum = 1;
             ArUtil::sleep(900);
-            //sleep(0.6);
         }
         else if(res == 2)
         {
@@ -389,7 +374,6 @@ void Robot::Align()
             k->finder.slopelist[0] = k->finder.slopelist[k->finder.listnum-1];
             k->finder.listnum = 1;
             ArUtil::sleep(900);
-            //sleep(0.6);
         }
         else
         {

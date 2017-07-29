@@ -1,4 +1,4 @@
-#include "linefinder.h"
+﻿#include "linefinder.h"
 #include <iostream>
 #include <stdio.h>
 
@@ -76,7 +76,7 @@ void LineFinder::lineRestrict()
     vector<Vec4i>::const_iterator it2 = lines.begin();
     while (it2!=lines.end())
     {
-        if(((*it2)[3]>Min || (*it2)[1] > Min) && (abs((*it2)[3] - (*it2)[1]) > 100) && (*it2)[0] > 500 && (*it2)[0] < 1100)
+        if(((*it2)[3]>900 || (*it2)[1] > 900) && (abs((*it2)[3] - (*it2)[1]) > 100))
         {
             bool flag = true;
             for(vector<Vec4i>::iterator it = reslines.begin();it!=reslines.end();it++)
