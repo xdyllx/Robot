@@ -1,4 +1,4 @@
-#include "tcpserver.h"
+﻿#include "tcpserver.h"
 #include <stdio.h>
 #include <unistd.h>
 TcpServer::TcpServer(int listen_port)
@@ -31,13 +31,13 @@ TcpServer::TcpServer(int listen_port)
 void *run1(void* args)
 {
     TcpServer *t = static_cast<TcpServer *>(args);
-    t->accept_link();
+    t->acceptLink();
 }
 
 void *run2(void* args)
 {
     S *t = static_cast<S *>(args);
-    t->server->recv_msg(t->num);
+    t->server->recvMessage(t->num);
 }
 
 void TcpServer::sendMessage(std::string response)
@@ -49,7 +49,7 @@ void TcpServer::sendMessage(std::string response)
 }
 
 
-void TcpServer::accept_link()
+void TcpServer::acceptLink()
 {
     socklen_t sin_size = sizeof(struct sockaddr_in);
     while(1){
@@ -67,7 +67,7 @@ void TcpServer::accept_link()
     }
 }
 
-void TcpServer::recv_msg(int num)
+void TcpServer::recvMessage(int num)
 {
     std::cout << "num=" <<num << std::endl;
     while(1)
@@ -113,7 +113,7 @@ void TcpServer::recv_msg(int num)
             {
                 flag = 1;
                 ins = "";
-                for(int i=2;i<len;i++)
+                for(int i=2;i<len;i++) //安卓客户端发送的消息前两位为消息长度，去掉
                     ins += buffer[i];
                 std::cout << "receive control message:" << ins << std::endl;
             }

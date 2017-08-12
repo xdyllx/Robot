@@ -1,5 +1,5 @@
-#ifndef KNECT_H
-#define KNECT_H
+﻿#ifndef Kinect_H
+#define Kinect_H
 
 #include <opencv2/opencv.hpp>
 
@@ -10,8 +10,9 @@
 #include <libfreenect2/logger.h>
 #include <pthread.h>
 
+#include "linefinder.h"
 
-class Knect
+class Kinect
 {
 private:
     enum
@@ -38,22 +39,20 @@ private:
     libfreenect2::PacketPipeline  *pipeline = NULL;
     std::string serial;
 
-    libfreenect2::SyncMultiFrameListener *listener;/*(
-            libfreenect2::Frame::Color |
-            libfreenect2::Frame::Depth |
-            libfreenect2::Frame::Ir);*/
+    libfreenect2::SyncMultiFrameListener *listener;
 
     pthread_t thr;
     static const double PI = 3.1415926;
 
 public:
-    Knect();
-    void Init();
-    int getOnePicture();
-    void ObserveObstacle();
-    void getOneSence();
-    //static int cmp(type x, type y);
+    Kinect();
+    int observeSideObstacle();
+    void Observe();
+    int judgeLine();
+
 private:
+    void Init();
+
     double dist(double x1, double y1, double x2, double y2)		//计算圆心间距离判断是否重叠
     {
         return sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
@@ -80,7 +79,6 @@ public:
     int robot_status; //1-have obstacle 0-no obstacle
     bool isWorking;
     std::string rg_message;
-    bool rgWorking;
     double angle;
     struct type
     {
@@ -88,10 +86,11 @@ public:
         double Dis;
         double x, y, r;
     };
-};
 
+    LineFinder finder;
+};
 
 
 void* thread_run(void*);
 
-#endif // KNECT_H
+#endif // Kinect_H

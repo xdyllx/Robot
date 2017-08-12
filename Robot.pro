@@ -6,12 +6,14 @@ CONFIG -= qt
 SOURCES += main.cpp \
     tcpserver.cpp \
     robot.cpp \
-    knect.cpp
+    linefinder.cpp \
+    kinect.cpp
 
 HEADERS += \
     tcpserver.h \
     robot.h \
-    knect.h
+    linefinder.h \
+    kinect.h
 
 
 LIBS += -ldl

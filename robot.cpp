@@ -1,8 +1,9 @@
-#include "robot.h"
+﻿#include "robot.h"
 #include <time.h>
 #include <stdlib.h>
 #include <sstream>
 #include <stdio.h>
+#include <ariaUtil.h>
 using namespace std;
 
 double getRand() //get random number in [-1,1]
@@ -25,7 +26,7 @@ Robot::Robot(TcpServer *_t)
 
 void Robot::init()
 {
-    //cout << "into init" <<endl;
+    srand((unsigned)time(NULL));
     memset(rg, 0, sizeof(rg));
     robot_vel = 65;
     RotateVelMax = 20;
@@ -78,22 +79,20 @@ void Robot::init()
     robot.comInt(ArCommands::ENABLE,1);
     robot.unlock();
     sleep(1);
-    //robot.setAbsoluteMaxRotVel(15);
     robot.setRotVelMax(RotateVelMax);
 
-    k = new Knect();
+    k = new Kinect();
 
 }
 
 void Robot::run()
 {
-    cout <<"run "<<endl;
 #define inst t->ins
 //#define rg t->rg
 //#define rgflag t->rgflag
     while(1)
     {
-        k->getOneSence();
+        //k->getOneSence();
         if(k->rg_message.substr(0,4) == "turn")
         {
             rgflag = true;
@@ -117,11 +116,10 @@ void Robot::run()
 
         if(t->flag == 1)
         {
-            //cout << "in flag" <<endl;
             //double rotate_temp = 90 + getRand();
 
             //cout <<"rotate_tmp = "<<rotate_temp << endl;
-            cout<<"rg:" << rg[0] << rg[1] << rg[2] <<endl;
+
             if(inst == "forward"){
                 if(rg[1])
                     continue;
@@ -195,15 +193,21 @@ void Robot::run()
 
                 cout << "k->isWorking = " << k->isWorking <<endl;
             }
+            else if(inst == "align")
+            {
+                Align();
+            }
             else{
                 cout << "error, inst= " << inst <<" rg_ins="<<k->rg_message<< endl;
             }
+            cout<<"rg:" << rg[0] << rg[1] << rg[2] <<endl;
             inst = "";
             t->flag = 0;
         }
         if(stop)
         {
             robot.stop();
+            stop = false;
             continue;
         }
         if(k->robot_status == 1)
@@ -213,7 +217,7 @@ void Robot::run()
             tmpangle = k->angle;
             AvoidSide();
         }
-        sleep(0.9);
+        sleep(0.5);
     }
 }
 
@@ -221,13 +225,13 @@ void Robot::RobotRotate(double angle)
 {
     //robot.setVel(0);
     cout << "angle = "<< angle<<endl;
-    if(angle > 25)
-        angle += getRand();
+//    if(angle > 25)
+//        angle += getRand();
     robot.setDeltaHeading(angle);
     int tmpcount = 0;
-    while(!robot.isHeadingDone() && tmpcount <10 && t->ins != "stop")
+    while(!robot.isHeadingDone() && tmpcount <20)
     {
-        sleep(1);
+        ArUtil::sleep(500);
         tmpcount++;
         cout << "in rotate" << endl;
 
@@ -239,19 +243,9 @@ void Robot::Move(int distance)
     robot.move(distance);
     while(!robot.isMoveDone() && t->ins != "stop")
     {
-        sleep(1);
-        cout << "is moving" <<endl;
+        ArUtil::sleep(500);
+        //cout << "is moving" <<endl;
     }
-//    int vel = 120;
-//    robot.setVel(vel);
-//    int seconds = distance / vel;
-//    int tmp = 0;
-//    while(tmp < seconds)
-//    {
-//        sleep(1);
-//        ++tmp;
-//    }
-//    robot.setVel(0);
 }
 
 void Robot::Reset()
@@ -276,7 +270,7 @@ void Robot::AvoidSide()
     //0: no obstacle
     //1: left 30.move 1000, right30
     //2: move 1000,right 30 observe if have status = 2 if not status = 3  left 30
-    //3:move 1000 right 30 observe if have left 30 status = 2 if not status = 4
+    //3:move 220 right 30 observe if have left 30 status = 2 if not status = 4
     //4:move 1000 left 30
     bool working = 1;
     int smalldistance = 220;
@@ -305,7 +299,7 @@ void Robot::AvoidSide()
             //sleep(0.5);
             //bool tmp = k->getOnePicture();
 
-            pictureres = k->getOnePicture();
+            pictureres = k->observeSideObstacle();
             cout << "picture res=" <<pictureres <<endl;
             if(pictureres == 0)
                 status = 3;
@@ -317,8 +311,7 @@ void Robot::AvoidSide()
             Move(700);
             RobotRotate(-tmpangle);
             sleep(0.3);
-            //bool tmp1 = k->getOnePicture();
-            pictureres = k->getOnePicture();
+            pictureres = k->observeSideObstacle();
             if(pictureres == 1)
             {
                 RobotRotate(tmpangle);
@@ -340,4 +333,53 @@ void Robot::AvoidSide()
         }
 
     }
+}
+
+void Robot::Align()
+{
+    k->finder.listnum = 0;
+    sleep(1);
+    robot.setVel(15);
+    int tmpcount = 0;
+    double smallangle;
+    while(tmpcount < 40 && inst != "stop")
+    {
+        smallangle = getRand() / 2 + 1.5;
+        ++tmpcount;
+        int res = k->finder.judgeLine();
+        cout << "judge line res = " << res <<endl;
+        if(res  == 1)
+        {
+            cout << "list: ";
+            for(int i=0;i<k->finder.listnum;i++)
+            {
+                cout << k->finder.slopelist[i] << ' ';
+            }
+            cout << k->finder.slopelist[k->finder.listnum-1] - k->finder.slopelist[0]  << endl;
+            RobotRotate(-smallangle);
+            k->finder.slopelist[0] = k->finder.slopelist[k->finder.listnum-1];
+            k->finder.listnum = 1;
+            ArUtil::sleep(900);
+        }
+        else if(res == 2)
+        {
+            cout << "list: ";
+            for(int i=0;i<k->finder.listnum;i++)
+            {
+                cout << k->finder.slopelist[i] << ' ';
+            }
+            cout << k->finder.slopelist[k->finder.listnum-1] - k->finder.slopelist[0]  << endl;
+
+            RobotRotate(smallangle);
+            k->finder.slopelist[0] = k->finder.slopelist[k->finder.listnum-1];
+            k->finder.listnum = 1;
+            ArUtil::sleep(900);
+        }
+        else
+        {
+            ArUtil::sleep(1000);
+            //sleep(1);
+        }
+    }
+    robot.stop();
 }

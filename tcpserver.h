@@ -1,4 +1,4 @@
-#ifndef TCPSERVER_H
+﻿#ifndef TCPSERVER_H
 #define TCPSERVER_H
 
 #include <string.h>
@@ -11,8 +11,8 @@ class TcpServer
 {
 public:
     TcpServer(int);
-    void accept_link();
-    void recv_msg(int num);
+    void acceptLink();
+    void recvMessage(int num);
     void sendMessage(std::string);
 
 public:
